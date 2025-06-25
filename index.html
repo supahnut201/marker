@@ -1,52 +1,420 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=title, initial-scale=1.0">
-    <title>marker</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>marker website</title>
+    <style>
+        /* CSS Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #00d4ff, #ff0080);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #00d4ff, #ff0080);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .color-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .color-btn.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #ccc;
+            max-width: 200px;
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            text-align: right;
+        }
+
+        .title h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d4ff, #ff0080, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            margin-bottom: 5px;
+        }
+
+        .title p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                width: calc(100% - 40px);
+                top: 10px;
+                left: 20px;
+            }
+            
+            .title {
+                position: relative;
+                text-align: center;
+                margin-top: 150px;
+            }
+            
+            .info {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="c2">
-        <h1>marker1</h1>
-
-    </div>
-   
-    <p>nonemarker</p>
-    <form action="">
-        <label for="name">fist name</label><br>
-        <input type="text" placeholder="fist name"><br>
-        <label for="nikname">nikname</label><br>
-        <input type="text" placeholder="nikname"><br>
-        <input type="button" value=" Enter"> <input type="reset">
-        <button type="submit">submit</button><br>
-        <input type="email"><br>
-        
-        
-    </form>
+    <canvas id="canvas"></canvas>
     
+    <div class="title">
+        <h1>PARTICLE UNIVERSE</h1>
+        <p>เคลื่อนเมาส์เพื่อสัมผัสความมหัศจรรย์</p>
+    </div>
+    
+    <div class="controls">
+        <h2>⚡ Controls</h2>
         
+        <div class="control-group">
+            <label>จำนวนอนุภาค</label>
+            <input type="range" id="particleCount" min="50" max="500" value="200">
+        </div>
+        
+        <div class="control-group">
+            <label>ความเร็ว</label>
+            <input type="range" id="speed" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <div class="control-group">
+            <label>ขนาดอนุภาค</label>
+            <input type="range" id="particleSize" min="1" max="8" value="3">
+        </div>
+        
+        <div class="control-group">
+            <label>ระยะการเชื่อมต่อ</label>
+            <input type="range" id="connectionDistance" min="50" max="200" value="100">
+        </div>
+        
+        <div class="control-group">
+            <label>สีธีม</label>
+            <div class="color-buttons">
+                <button class="color-btn active" style="background: linear-gradient(45deg, #00d4ff, #0080ff)" data-theme="blue"></button>
+                <button class="color-btn" style="background: linear-gradient(45deg, #ff0080, #ff4080)" data-theme="pink"></button>
+                <button class="color-btn" style="background: linear-gradient(45deg, #00ff88, #40ff80)" data-theme="green"></button>
+                <button class="color-btn" style="background: linear-gradient(45deg, #ffaa00, #ff8800)" data-theme="orange"></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info">
+        <strong>💡 วิธีใช้:</strong><br>
+        • เคลื่อนเมาส์เพื่อดึงดูดอนุภาค<br>
+        • ปรับแต่งค่าต่างๆ ด้านซ้าย<br>
+        • เปลี่ยนสีธีมได้<br>
+        • รองรับทั้งมือถือและคอมพิวเตอร์
+    </div>
 
- <form action="">
-     <input type="search" >
- </form>
- <div>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero nesciunt saepe quos accusamus animi minima odit qui corporis dignissimos hic. Nemo veritatis quasi animi rerum repudiandae accusantium, blanditiis nisi expedita!</p>
-    <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Porro, expedita.</p>
-</div>
-<hr>
-<a href="#"> home</a>
-<a href="#"> monters</a>
-<a href="#">inline</a>
-<a href="#"> marker </a>
-<span>text z</span>
-<span>text z</span>
-<span>text z</span>
-<span>text z</span>
-<!-- <div class="c1"></div> -->
-
-<div id="b1">mmmmmmdsm66</div>
-
-
+    <script>
+        // JavaScript Code
+        class ParticleSystem {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.mouse = { x: 0, y: 0 };
+                this.settings = {
+                    particleCount: 200,
+                    speed: 1,
+                    particleSize: 3,
+                    connectionDistance: 100,
+                    theme: 'blue'
+                };
+                this.themes = {
+                    blue: ['#00d4ff', '#0080ff', '#004cff'],
+                    pink: ['#ff0080', '#ff4080', '#ff8080'],
+                    green: ['#00ff88', '#40ff80', '#80ff80'],
+                    orange: ['#ffaa00', '#ff8800', '#ff6600']
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.resize();
+                this.createParticles();
+                this.bindEvents();
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            createParticles() {
+                this.particles = [];
+                for (let i = 0; i < this.settings.particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 2 * this.settings.speed,
+                        vy: (Math.random() - 0.5) * 2 * this.settings.speed,
+                        size: Math.random() * this.settings.particleSize + 1,
+                        opacity: Math.random() * 0.5 + 0.5,
+                        color: this.themes[this.settings.theme][Math.floor(Math.random() * 3)]
+                    });
+                }
+            }
+            
+            updateParticle(particle) {
+                // Mouse attraction
+                const dx = this.mouse.x - particle.x;
+                const dy = this.mouse.y - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const force = (150 - distance) / 150;
+                    particle.vx += (dx / distance) * force * 0.01;
+                    particle.vy += (dy / distance) * force * 0.01;
+                }
+                
+                // Update position
+                particle.x += particle.vx * this.settings.speed;
+                particle.y += particle.vy * this.settings.speed;
+                
+                // Bounce off edges
+                if (particle.x < 0 || particle.x > this.canvas.width) {
+                    particle.vx *= -0.8;
+                    particle.x = Math.max(0, Math.min(this.canvas.width, particle.x));
+                }
+                if (particle.y < 0 || particle.y > this.canvas.height) {
+                    particle.vy *= -0.8;
+                    particle.y = Math.max(0, Math.min(this.canvas.height, particle.y));
+                }
+                
+                // Add some random movement
+                particle.vx += (Math.random() - 0.5) * 0.02;
+                particle.vy += (Math.random() - 0.5) * 0.02;
+                
+                // Limit velocity
+                const maxVel = 3 * this.settings.speed;
+                particle.vx = Math.max(-maxVel, Math.min(maxVel, particle.vx));
+                particle.vy = Math.max(-maxVel, Math.min(maxVel, particle.vy));
+            }
+            
+            drawParticle(particle) {
+                // Glow effect
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = particle.color;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                this.ctx.fillStyle = particle.color;
+                this.ctx.globalAlpha = particle.opacity;
+                this.ctx.fill();
+                
+                this.ctx.shadowBlur = 0;
+                this.ctx.globalAlpha = 1;
+            }
+            
+            drawConnections() {
+                for (let i = 0; i < this.particles.length; i++) {
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const dx = this.particles[i].x - this.particles[j].x;
+                        const dy = this.particles[i].y - this.particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < this.settings.connectionDistance) {
+                            const opacity = 1 - (distance / this.settings.connectionDistance);
+                            this.ctx.strokeStyle = this.themes[this.settings.theme][0];
+                            this.ctx.globalAlpha = opacity * 0.3;
+                            this.ctx.lineWidth = 1;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
+                            this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+                this.ctx.globalAlpha = 1;
+            }
+            
+            animate() {
+                this.ctx.fillStyle = 'rgba(12, 12, 12, 0.05)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.drawConnections();
+                
+                this.particles.forEach(particle => {
+                    this.updateParticle(particle);
+                    this.drawParticle(particle);
+                });
+                
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            bindEvents() {
+                // Mouse events
+                this.canvas.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+                
+                // Touch events for mobile
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    this.mouse.x = e.touches[0].clientX;
+                    this.mouse.y = e.touches[0].clientY;
+                });
+                
+                // Window resize
+                window.addEventListener('resize', () => {
+                    this.resize();
+                    this.createParticles();
+                });
+                
+                // Controls
+                document.getElementById('particleCount').addEventListener('input', (e) => {
+                    this.settings.particleCount = parseInt(e.target.value);
+                    this.createParticles();
+                });
+                
+                document.getElementById('speed').addEventListener('input', (e) => {
+                    this.settings.speed = parseFloat(e.target.value);
+                });
+                
+                document.getElementById('particleSize').addEventListener('input', (e) => {
+                    this.settings.particleSize = parseInt(e.target.value);
+                    this.createParticles();
+                });
+                
+                document.getElementById('connectionDistance').addEventListener('input', (e) => {
+                    this.settings.connectionDistance = parseInt(e.target.value);
+                });
+                
+                // Theme buttons
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.settings.theme = btn.dataset.theme;
+                        this.createParticles();
+                    });
+                });
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            new ParticleSystem();
+        });
+    </script>
 </body>
 </html>
